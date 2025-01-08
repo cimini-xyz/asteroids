@@ -11,11 +11,12 @@ class Player(CircleShape):
     
     # in the player class
     def triangle(self):
+        visible_radius = 20
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
-        right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.radius / 1.5
-        a = self.position + forward * self.radius
-        b = self.position - forward * self.radius - right
-        c = self.position - forward * self.radius + right
+        right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * visible_radius / 1.5
+        a = self.position + forward * visible_radius
+        b = self.position - forward * visible_radius - right
+        c = self.position - forward * visible_radius + right
         return [a, b, c]
     
     def draw(self, screen):

@@ -4,7 +4,7 @@ global_hue = 0.0
 
 def update_global_hue(dt):
     global global_hue 
-    global_hue = (global_hue + 1.0 * dt) % 1.0
+    global_hue = (global_hue + 1.0 * dt / 8) % 1.0
 
 def get_rgb_from_hue():
     global global_hue
