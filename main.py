@@ -4,7 +4,7 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
-from globalhue import update_global_hue, update_sprite_color, get_background_color
+from globalhue import update_global_hue, update_sprite_color, get_background_color, reduce_asteroid_split_flash_remaining, reduce_asteroid_kill_flash_remaining
 
 
 def main():
@@ -48,6 +48,9 @@ def main():
                 print("Game over!")
                 exit()
         
+        
+        reduce_asteroid_split_flash_remaining(dt)
+        reduce_asteroid_kill_flash_remaining(dt)
         update_global_hue(dt)
 
         for sprite in drawable:

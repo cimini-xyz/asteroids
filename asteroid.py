@@ -2,6 +2,7 @@ import pygame
 from constants import *
 from circleshape import CircleShape
 import random
+from globalhue import reset_asteroid_split_flash_remaining, reset_asteroid_kill_flash_remaining
 
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
@@ -18,10 +19,12 @@ class Asteroid(CircleShape):
 
     def update(self, dt):
         self.position += self.velocity * dt
+        
 
     def split(self, dt):
         self.kill()
         if self.radius <= ASTEROID_MIN_RADIUS:
+            reset_asteroid_kill_flash_remaining()
             return
         random_angle = random.uniform(20, 50)
         new_vector_a = self.velocity.rotate(random_angle)
@@ -31,3 +34,4 @@ class Asteroid(CircleShape):
         asteroid_b = Asteroid(self.position[0],self.position[1],new_radius)
         asteroid_a.velocity = new_vector_a * 1.2
         asteroid_b.velocity = new_vector_b * 1.2
+        reset_asteroid_split_flash_remaining()
