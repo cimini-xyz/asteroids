@@ -27,11 +27,11 @@ def get_screen_shake(dt):
     screen_shake_time += dt
 
     # Use smooth oscillation for offsets
-    screen_offset_x = math.sin(screen_shake_time * 10) * intensity
-    screen_offset_y = math.cos(screen_shake_time * 10) * intensity
+    screen_offset_x = math.sin(screen_shake_time * 10) * intensity / 1.14
+    screen_offset_y = math.cos(screen_shake_time * 10) * intensity / 1.2
 
     jitter_mod_x = random.uniform(max(-intensity, SCREEN_SHAKE_MAX_OFFSET_X), min(intensity, SCREEN_SHAKE_MAX_OFFSET_X)) // 7
-    jitter_mod_y = random.uniform(max(-intensity, SCREEN_SHAKE_MAX_OFFSET_X), min(intensity, SCREEN_SHAKE_MAX_OFFSET_X)) // 14
+    jitter_mod_y = random.uniform(max(-intensity, SCREEN_SHAKE_MAX_OFFSET_X), min(intensity, SCREEN_SHAKE_MAX_OFFSET_X)) // 12
     # Clamp the offsets
     screen_offset_x = max(-SCREEN_SHAKE_MAX_OFFSET_X, min(screen_offset_x, SCREEN_SHAKE_MAX_OFFSET_X)) + jitter_mod_x
     screen_offset_y = max(-SCREEN_SHAKE_MAX_OFFSET_Y, min(screen_offset_y, SCREEN_SHAKE_MAX_OFFSET_Y)) + jitter_mod_y
