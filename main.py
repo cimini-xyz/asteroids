@@ -23,7 +23,7 @@ def main():
     
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroidfield = AsteroidField()
-    
+
     while True:
         #logic  
         for event in pygame.event.get():
@@ -31,6 +31,12 @@ def main():
                 return
         for sprite in updatable:
             sprite.update(dt)
+
+        for asteroid in asteroids:
+            if asteroid.collide(player):
+                print("Game over!")
+                exit()
+        
         #graphic
         screen.fill("black")
         for sprite in drawable:
