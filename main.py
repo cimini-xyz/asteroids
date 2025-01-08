@@ -4,6 +4,9 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
+from globalhue import update_global_hue, update_sprite_color
+
+
 def main():
     print("Starting asteroids!")
     print(f"Screen width: {SCREEN_WIDTH}")
@@ -12,6 +15,7 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
     dt = 0
+    global_hue = 0.0
 
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
@@ -43,7 +47,11 @@ def main():
             if asteroid.collide(player):
                 print("Game over!")
                 exit()
-                    
+        
+        update_global_hue(dt)
+
+        for sprite in drawable:
+            update_sprite_color(sprite)
         
         #graphic
         screen.fill("black")
