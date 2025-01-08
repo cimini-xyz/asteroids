@@ -4,7 +4,7 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
-from globalhue import update_global_hue, update_sprite_color
+from globalhue import update_global_hue, update_sprite_color, get_background_color
 
 
 def main():
@@ -51,10 +51,10 @@ def main():
         update_global_hue(dt)
 
         for sprite in drawable:
-            update_sprite_color(sprite)
+            update_sprite_color(sprite, player)
         
         #graphic
-        screen.fill("black")
+        screen.fill(get_background_color(player))
         for sprite in drawable:
             sprite.draw(screen)
         #refresh
