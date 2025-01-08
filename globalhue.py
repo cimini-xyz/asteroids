@@ -18,19 +18,16 @@ def get_rgb_from_hue(hue_mod = 0.0, sat_mod = 0.0, bri_mod = 0.0):
         max(0,min(1.0, (global_sat + sat_mod))),
         max(0,min(1.0, (global_brightness + bri_mod)))
     )
-    print("rgb:", rgb)
     return tuple(int(255 * c) for c in rgb)
 
 def update_sprite_color(sprite, player):
     flash_bright = get_shot_flash_brightness(player)
     color = get_rgb_from_hue(0.0, flash_bright, flash_bright)
-    print("sprite color:", color)
     sprite.color = color
 
 def get_background_color(player):
     flash_bright = get_shot_flash_brightness(player) / 64
     color = get_rgb_from_hue(0.0, flash_bright - 0.725, flash_bright - 0.725)
-    print("background color:", color)
     return color
 
 def get_shot_flash_brightness(player):
