@@ -3,6 +3,7 @@ from constants import *
 from circleshape import CircleShape
 import random
 from globalhue import reset_asteroid_split_flash_remaining, reset_asteroid_kill_flash_remaining
+from screenfx import reset_screen_shake_asteroid_kill, reset_screen_shake_asteroid_split
 
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
@@ -25,6 +26,7 @@ class Asteroid(CircleShape):
         self.kill()
         if self.radius <= ASTEROID_MIN_RADIUS:
             reset_asteroid_kill_flash_remaining()
+            reset_screen_shake_asteroid_kill()
             return
         random_angle = random.uniform(20, 50)
         new_vector_a = self.velocity.rotate(random_angle)
@@ -35,3 +37,4 @@ class Asteroid(CircleShape):
         asteroid_a.velocity = new_vector_a * 1.2
         asteroid_b.velocity = new_vector_b * 1.2
         reset_asteroid_split_flash_remaining()
+        reset_screen_shake_asteroid_split()

@@ -1,11 +1,21 @@
 import colorsys
-from constants import PLAYER_SHOT_FLASH_INTENSITY, ASTEROID_SPLIT_FLASH_INTENSITY, ASTEROID_SPLIT_FLASH_LENGTH, ASTEROID_KILL_FLASH_LENGTH, ASTEROID_KILL_FLASH_INTENSITY
+from constants import (
+    BASE_GLOBAL_HUE,
+    BASE_GLOBAL_BRIGHTNESS,
+    BASE_GLOBAL_SAT,
+    SCREEN_BACKGROUND_MODIFIER,
+    PLAYER_SHOT_FLASH_INTENSITY, 
+    ASTEROID_SPLIT_FLASH_INTENSITY, 
+    ASTEROID_SPLIT_FLASH_LENGTH, 
+    ASTEROID_KILL_FLASH_LENGTH, 
+    ASTEROID_KILL_FLASH_INTENSITY
+)
 
 
 
-global_hue = 0.0
-global_sat = 0.775
-global_brightness = 0.775
+global_hue = BASE_GLOBAL_HUE
+global_sat = BASE_GLOBAL_SAT
+global_brightness = BASE_GLOBAL_BRIGHTNESS
 
 asteroid_split_flash_remaining = 0.0
 asteroid_kill_flash_remaining = 0.0
@@ -26,14 +36,26 @@ def get_rgb_from_hue(hue_mod = 0.0, sat_mod = 0.0, bri_mod = 0.0):
     return tuple(int(255 * c) for c in rgb)
 
 def update_sprite_color(sprite, player):
-    flash_bright = get_shot_flash_brightness(player) + get_asteroid_split_flash_brightness() + get_asteroid_kill_flash_brightness()
+    flash_bright = (
+        get_shot_flash_brightness(player) +
+        get_asteroid_split_flash_brightness() +
+        get_asteroid_kill_flash_brightness()
+    )
     color = get_rgb_from_hue(0.0, flash_bright, flash_bright)
     sprite.color = color
 
 def get_background_color(player):
-    background_modifier = - 0.725
-    flash_bright = get_shot_flash_brightness(player) / 64 + get_asteroid_split_flash_brightness() / 32 + get_asteroid_kill_flash_brightness() / 22 
-    color = get_rgb_from_hue(0.0, flash_bright + background_modifier , flash_bright + background_modifier )
+    background_modifier = SCREEN_BACKGROUND_MODIFIER
+    flash_bright = (
+        get_shot_flash_brightness(player) / 64 + 
+        get_asteroid_split_flash_brightness() / 32 + 
+        get_asteroid_kill_flash_brightness() / 22 
+    )
+    color = get_rgb_from_hue(
+        0.0,
+        flash_bright + SCREEN_BACKGROUND_MODIFIER,
+        flash_bright + SCREEN_BACKGROUND_MODIFIER 
+    )
     return color
 
 def get_shot_flash_brightness(player):
