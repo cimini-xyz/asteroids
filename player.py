@@ -10,11 +10,7 @@ class Player(CircleShape):
         self.rotation = 0
         self.shoot_cooldown = 0
         self.shot_flash_length = 0
-        self.ghost_image_length = []
-        self.ghost_image_position = []
-        self.ghost_image_rotation = []
-        self.last_triggered_time = 0
-        
+        self.__init_ghost_image()
     
     # in the player class
     def triangle(self, position, rotation):
@@ -34,16 +30,11 @@ class Player(CircleShape):
             2
         )
 
-    def draw_ghost_images(self, screen):
-        for i in range(0, len(self.ghost_image_length)):
-            if self.ghost_image_length[i] <= PLAYER_GHOST_IMAGE_LENGTH:
-                ghost_image_color = get_ghost_image_color(self.ghost_image_length[i])
-                pygame.draw.polygon(
-                    screen,
-                    ghost_image_color,
-                    self.triangle(self.ghost_image_position[i], self.ghost_image_rotation[i]),
-                    2
-                )
+    def __init_ghost_image(self):
+        self.ghost_image_length = []
+        self.ghost_image_position = []
+        self.ghost_image_rotation = []
+        self.last_triggered_time = 0
 
     def add_ghost_image(self):
         self.ghost_image_length.append(PLAYER_GHOST_IMAGE_LENGTH)
@@ -53,8 +44,34 @@ class Player(CircleShape):
     def reduce_ghost_image_length(self, index, dt):
         self.ghost_image_length[index] = self.ghost_image_length[index] - dt
 
-    def rotate(self, dt):
-        self.rotation += PLAYER_TURN_SPEED * dt
+    def handle_ghost_image_spawn(self, dt):
+        self.last_triggered_time += dt
+        if self.last_triggered_time >= PLAYER_GHOST_IMAGE_FREQUENCY:
+            self.last_triggered_time -= PLAYER_GHOST_IMAGE_FREQUENCY
+            self.add_ghost_image()
+
+    def handle_ghost_image_reduction(self, dt):
+        for i in range(len(self.ghost_image_length) - 1, -1, -1):
+            self.reduce_ghost_image_length(i, dt)
+            if self.ghost_image_length[i] <= 0:
+                del self.ghost_image_length[i]
+                del self.ghost_image_position[i]
+                del self.ghost_image_rotation[i]
+
+    def handle_ghost_image(self, dt):
+        self.handle_ghost_image_spawn(dt)
+        self.handle_ghost_image_reduction(dt)
+
+    def draw_ghost_images(self, screen):
+        for i in range(0, len(self.ghost_image_length)):
+            if self.ghost_image_length[i] <= PLAYER_GHOST_IMAGE_LENGTH:
+                ghost_image_color = get_ghost_image_color(self.ghost_image_length[i], PLAYER_GHOST_IMAGE_INTENSITY)
+                pygame.draw.polygon(
+                    screen,
+                    ghost_image_color,
+                    self.triangle(self.ghost_image_position[i], self.ghost_image_rotation[i]),
+                    2
+                )
 
     def update(self, dt):
         self.shoot_cooldown = max(0, self.shoot_cooldown - dt)
@@ -76,18 +93,10 @@ class Player(CircleShape):
         if keys[pygame.K_SPACE]:
             self.shoot(dt)
         
-        for i in range(len(self.ghost_image_length) - 1, -1, -1):
-            self.reduce_ghost_image_length(i, dt)
-            if self.ghost_image_length[i] <= 0:
-                del self.ghost_image_length[i]
-                del self.ghost_image_position[i]
-                del self.ghost_image_rotation[i]
+        self.handle_ghost_image(dt)
         
-        self.last_triggered_time += dt
-        if self.last_triggered_time >= PLAYER_GHOST_IMAGE_FREQUENCY:
-            self.last_triggered_time -= PLAYER_GHOST_IMAGE_FREQUENCY
-            self.add_ghost_image()
-            
+    def rotate(self, dt):
+        self.rotation += PLAYER_TURN_SPEED * dt
 
     def move(self, dt):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)

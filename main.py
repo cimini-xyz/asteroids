@@ -31,12 +31,13 @@ def main():
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
     stars = pygame.sprite.Group()
+    ghost_image = pygame.sprite.Group()
 
-    Player.containers = (updatable, drawable)
+    Player.containers = (updatable, drawable, ghost_image)
     Asteroid.containers = (updatable, drawable, asteroids)
     AsteroidField.containers = (updatable)
     StarField.containers = (updatable)
-    Shot.containers = (updatable, drawable, shots)
+    Shot.containers = (updatable, drawable, shots, ghost_image)
     Star.containers = (updatable, stars)
     Planet.containers = (updatable, stars)
 
