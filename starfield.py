@@ -1,6 +1,7 @@
 import pygame
 import random
 from star import Star
+from planet import Planet
 from constants import *
 
 
@@ -21,7 +22,11 @@ class StarField(pygame.sprite.Sprite):
         self.spawn_timer = 0.0
 
     def spawn(self, radius, position, velocity):
-        star = Star(position.x, position.y, radius)
+        roll = random.uniform(0.0, 1.0)
+        if roll > 0.825:
+            planet = Planet(position.x, position.y, radius)
+        else:
+            star = Star(position.x, position.y, radius)
 
     def update(self, dt):
         self.spawn_timer += dt

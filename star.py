@@ -4,7 +4,6 @@ import pygame
 class Star(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x,y,radius)
-        print(f"Spawned Star at ({x}, {y}) with radius {radius}")
     
     def draw(self, surface):
         lines = [
@@ -28,14 +27,14 @@ class Star(CircleShape):
         for line in lines:
             pygame.draw.line(
                 surface,
-                (40,40,40),
+                self.color,
                 line[0],
                 line[1],
                 1
             )
         
     def update(self, dt):
-        self.position[0] -= 1
-        self.position[1] += 1
+        self.position[0] -= dt * 100
+        self.position[1] += dt * 100
         if self.position[0] < -10 or self.position[1] < -10:
             self.kill()

@@ -47,6 +47,16 @@ def update_sprite_color(sprite, player):
     color = get_rgb_from_hue(0.0, flash_bright, flash_bright)
     sprite.color = color
 
+def update_star_color(sprite, player):
+    flash_bright = get_background_flash_bright(player)
+    color = get_rgb_from_hue(
+        0,
+        -0.1 + flash_bright,
+        SCREEN_BACKGROUND_MODIFIER + 0.21 + flash_bright
+    )
+    #color = tuple(int(c // 3) for c in color)
+    sprite.color = color
+
 def get_background_flash_bright(player, shot_mod = 64, split_mod = 32, kill_mod = 22):
     return (
         get_shot_flash_brightness(player) / shot_mod + 
@@ -59,7 +69,7 @@ def get_background_color(player):
     flash_bright = get_background_flash_bright(player)
     color = get_rgb_from_hue(
         0.0,
-        flash_bright + SCREEN_BACKGROUND_MODIFIER,
+        flash_bright - 0.475,
         flash_bright + SCREEN_BACKGROUND_MODIFIER 
     )
     return color

@@ -4,12 +4,13 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
-from globalhue import update_global_hue, update_sprite_color, get_background_color, reduce_asteroid_split_flash_remaining, reduce_asteroid_kill_flash_remaining, get_gridline_a_color, get_gridline_b_color
+from globalhue import update_global_hue, update_sprite_color, get_background_color, reduce_asteroid_split_flash_remaining, reduce_asteroid_kill_flash_remaining, get_gridline_a_color, get_gridline_b_color, update_star_color
 from screenfx import reduce_screen_shake_remaining, get_screen_shake
 import random
 from gridline import *
 from star import Star
 from starfield import StarField
+from planet import Planet
 
 def main():
     print("Starting asteroids!")
@@ -37,6 +38,7 @@ def main():
     StarField.containers = (updatable)
     Shot.containers = (updatable, drawable, shots)
     Star.containers = (updatable, stars)
+    Planet.containers = (updatable, stars)
 
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroidfield = AsteroidField()
@@ -72,6 +74,7 @@ def main():
 
         starscreen.fill((0, 0, 0, 0))
         for star in stars:
+            update_star_color(star, player)
             star.draw(starscreen)
 
         
