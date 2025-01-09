@@ -4,9 +4,10 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
-from globalhue import update_global_hue, update_sprite_color, get_background_color, reduce_asteroid_split_flash_remaining, reduce_asteroid_kill_flash_remaining
+from globalhue import update_global_hue, update_sprite_color, get_background_color, reduce_asteroid_split_flash_remaining, reduce_asteroid_kill_flash_remaining, get_gridline_a_color, get_gridline_b_color
 from screenfx import reduce_screen_shake_remaining, get_screen_shake
 import random
+from gridline import *
 
 def main():
     print("Starting asteroids!")
@@ -14,7 +15,7 @@ def main():
     print(f"Screen height: {SCREEN_HEIGHT}")
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    world = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+    world = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
     clock = pygame.time.Clock()
     dt = 0
     global_hue = 0.0
@@ -62,14 +63,14 @@ def main():
             update_sprite_color(sprite, player)
         
         #graphic
-        world.fill(get_background_color(player))
+        world.fill((0, 0, 0, 0))
         screen.fill(get_background_color(player))
         for sprite in drawable:
             sprite.draw(world)
 
-        screen_offset_x += random.randint(-5,5)
-        screen_offset_y += random.randint(-5,5)
         screen.blit(world, get_screen_shake(dt))
+        
+        
         
         #refresh
         pygame.display.flip()

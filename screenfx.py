@@ -40,17 +40,19 @@ def get_screen_shake(dt):
 
 
 def reduce_screen_shake_remaining(dt):
-   global screen_shake_length_remaining
-   screen_shake_length_remaining = max(0, screen_shake_length_remaining - dt)
+    global screen_shake_length_remaining
+    screen_shake_length_remaining = max(0, screen_shake_length_remaining - dt)
 
 def reset_screen_shake_asteroid_split():
-   global screen_shake_length_remaining
-   global screen_shake_intensity
-   screen_shake_length_remaining = SCREEN_SHAKE_ASTEROID_SPLIT_LENGTH
-   screen_shake_intensity = SCREEN_SHAKE_ASTEROID_SPLIT_INTENSITY
+    global screen_shake_length_remaining
+    global screen_shake_intensity
+    screen_shake_length_remaining = SCREEN_SHAKE_ASTEROID_SPLIT_LENGTH
+    screen_shake_intensity = SCREEN_SHAKE_ASTEROID_SPLIT_INTENSITY
 
 def reset_screen_shake_asteroid_kill():
-   global screen_shake_length_remaining
-   global screen_shake_intensity
-   screen_shake_length_remaining = SCREEN_SHAKE_ASTEROID_KILL_LENGTH
-   screen_shake_intensity = SCREEN_SHAKE_ASTEROID_KILL_INTENSITY
+    global screen_shake_length_remaining
+    global screen_shake_intensity
+    if SCREEN_SHAKE_ASTEROID_KILL_LENGTH > screen_shake_length_remaining:
+        screen_shake_length_remaining = SCREEN_SHAKE_ASTEROID_KILL_LENGTH
+    if SCREEN_SHAKE_ASTEROID_KILL_INTENSITY > screen_shake_intensity:
+        screen_shake_intensity = SCREEN_SHAKE_ASTEROID_KILL_INTENSITY
