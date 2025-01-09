@@ -8,6 +8,8 @@ from globalhue import update_global_hue, update_sprite_color, get_background_col
 from screenfx import reduce_screen_shake_remaining, get_screen_shake
 import random
 from gridline import *
+from star import Star
+from starfield import StarField
 
 def main():
     print("Starting asteroids!")
@@ -15,6 +17,7 @@ def main():
     print(f"Screen height: {SCREEN_HEIGHT}")
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    starscreen= pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
     world = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
     clock = pygame.time.Clock()
     dt = 0
@@ -26,14 +29,19 @@ def main():
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
+    stars = pygame.sprite.Group()
 
     Player.containers = (updatable, drawable)
     Asteroid.containers = (updatable, drawable, asteroids)
     AsteroidField.containers = (updatable)
+    StarField.containers = (updatable)
     Shot.containers = (updatable, drawable, shots)
+    Star.containers = (updatable, stars)
 
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroidfield = AsteroidField()
+    starfield = StarField()
+    star = Star(300, 300, 3)
 
     while True:
         #logic  
@@ -61,14 +69,22 @@ def main():
 
         for sprite in drawable:
             update_sprite_color(sprite, player)
+
+        starscreen.fill((0, 0, 0, 0))
+        for star in stars:
+            star.draw(starscreen)
+
         
         #graphic
         world.fill((0, 0, 0, 0))
+        
         screen.fill(get_background_color(player))
         for sprite in drawable:
             sprite.draw(world)
 
-        screen.blit(world, get_screen_shake(dt))
+        screen_shake = get_screen_shake(dt)
+        screen.blit(starscreen, screen_shake)
+        screen.blit(world, screen_shake)
         
         
         
