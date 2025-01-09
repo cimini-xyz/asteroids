@@ -69,6 +69,10 @@ class Player(CircleShape):
             self.move(dt)
         if keys[pygame.K_s]:
             self.move(-dt)
+        if keys[pygame.K_q]:
+            self.strafe_left(dt)
+        if keys[pygame.K_e]:
+            self.strafe_right(dt)
         if keys[pygame.K_SPACE]:
             self.shoot(dt)
         
@@ -89,7 +93,21 @@ class Player(CircleShape):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         self.position += forward * PLAYER_SPEED * dt
 
-    
+    def strafe_left(self, dt):
+        vector = 1
+        if (self.rotation - 90) % 360 > 180:
+            vector = -1
+        left = pygame.Vector2(vector, 0).rotate(self.rotation)
+        self.position += left * PLAYER_SPEED * dt
+
+    def strafe_right(self, dt):
+        vector = -1
+        if (self.rotation - 90) % 360 > 180:
+            vector = 1
+        right = pygame.Vector2(vector, 0).rotate(self.rotation)
+        self.position += right * PLAYER_SPEED * dt
+
+
     def shoot(self, dt):
         if self.shoot_cooldown > 0:
             return
