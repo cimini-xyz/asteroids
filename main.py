@@ -11,6 +11,7 @@ from star import Star
 from starfield import StarField
 from planet import Planet
 from vfx.ghostimage.manager import GhostImageManager
+from vfx.ghostimage.emitter import GhostImageEmitter
 
 def main():
     print("Starting asteroids!")
@@ -27,17 +28,17 @@ def main():
     screen_offset_y = 0
 
     sprite_updatables = pygame.sprite.Group()
-    drawable = pygame.sprite.Group()
+    sprite_drawables = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
     stars = pygame.sprite.Group()
     ghost_image = pygame.sprite.Group()
 
-    Player.containers = (sprite_updatables, drawable, ghost_image)
-    Asteroid.containers = (sprite_updatables, drawable, asteroids)
+    Player.containers = (sprite_updatables, sprite_drawables, ghost_image)
+    Asteroid.containers = (sprite_updatables, sprite_drawables, asteroids)
     AsteroidField.containers = (sprite_updatables)
     StarField.containers = (sprite_updatables)
-    Shot.containers = (sprite_updatables, drawable, shots, ghost_image)
+    Shot.containers = (sprite_updatables, sprite_drawables, shots, ghost_image)
     Star.containers = (sprite_updatables, stars)
     Planet.containers = (sprite_updatables, stars)
     
@@ -46,9 +47,16 @@ def main():
     asteroidfield = AsteroidField()
     starfield = StarField()
 
-    updatables = []
-    ghost_image_manager = GhostImageManager(ghost_image)
-    updatables.append(ghost_image_manager)
+    ghost_image_emitter = GhostImageEmitter()
+    ghost_image_manager = GhostImageManager(ghost_image, ghost_image_emitter)
+    updatables = [
+        ghost_image_manager,
+        ghost_image_emitter
+    ]
+    drawables = [
+        ghost_image_emitter
+    ]
+    
 
     while True:
         #logic  
@@ -74,7 +82,7 @@ def main():
         reduce_screen_shake_remaining(dt)
         update_global_hue(dt)
 
-        for sprite in drawable:
+        for sprite in sprite_drawables:
             update_sprite_color(sprite, player)
 
         starscreen.fill((0, 0, 0, 0))
@@ -87,8 +95,9 @@ def main():
         world.fill((0, 0, 0, 0))
         
         screen.fill(get_background_color(player))
-        ghost_image_manager.draw(world)
-        for sprite in drawable:
+        for drawable in drawables:
+            drawable.draw(world)
+        for sprite in sprite_drawables:
             sprite.draw(world)
 
         screen_shake = get_screen_shake(dt)
