@@ -1,4 +1,4 @@
-from vfx.color.globalhue import get_ghost_image_color 
+from globalhue import get_ghost_image_color 
 from vfx.ghostimage.emission import GhostImageEmission
 
 class GhostImageEmitter():

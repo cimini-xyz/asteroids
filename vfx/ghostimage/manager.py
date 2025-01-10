@@ -45,20 +45,14 @@ class GhostImageManager():
     def register_source(self, sprite):
         self.seen.append(sprite)
         self.sources.append(
-            GhostImageSource(
-                self.config[type(sprite)].frequency,
-                sprite,
-                self.config[type(sprite)].draw_function,
-                self.config[type(sprite)].length,
-                self.config[type(sprite)].intensity
-            )
+            GhostImageSource(sprite. self.config[type(sprite)])
         )
 
     def unregister_source(self, source):
         self.seen.remove(source.sprite)
         self.sources.remove(source)
 
-    def unregister_dead_sources(self):
+    def unregister_dead_sprites(self):
         for source in self.sources:
             if source.sprite not in self.sprite_group:
                 self.unregister_source(source)
@@ -67,21 +61,6 @@ class GhostImageManager():
         for sprite in self.sprite_group:
             if sprite not in self.seen:
                 self.register_source(sprite)
-
-    def print_sprites(self):
-        for sprite in self.sprite_group:
-            print(sprite)
-
-    def print_seen(self):
-        for seen_sprite in self.seen:
-            print("SEEN SPRITE:", seen_sprite)
-
-    def print_sources(self):
-        for source in self.sources:
-            print("SOURCE:", source)
-
-    def print_get_ready_sources(self):
-        print([self.get_ready_sources()])
 
     def get_ready_sources(self):
         return (
@@ -100,7 +79,7 @@ class GhostImageManager():
             source.increment_last_emission_time(dt)
 
     def update(self, dt):
-        self.unregister_dead_sources()
+        self.unregister_dead_sprites()
         self.increment_sources(dt)
         self.spawn_emissions()
         self.emitter.update(dt)
