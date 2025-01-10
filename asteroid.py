@@ -4,20 +4,22 @@ from circleshape import CircleShape
 import random
 from globalhue import reset_asteroid_split_flash_remaining, reset_asteroid_kill_flash_remaining
 from screenfx import reset_screen_shake_asteroid_kill, reset_screen_shake_asteroid_split
+from draw.circle import draw_circle
+
 
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x,y,radius)
 
     def draw(self, screen):
-        pygame.draw.circle(
+        draw_circle(
             screen,
             self.color,
             self.position,
-            self.radius,
-            2
+            0,
+            self.radius
         )
-
+        
     def update(self, dt):
         self.position += self.velocity * dt
         
