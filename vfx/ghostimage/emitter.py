@@ -1,21 +1,11 @@
 from globalhue import get_ghost_image_color 
-from vfx.ghostimage.emission import GhostImageEmission
 
 class GhostImageEmitter():
     def __init__(self):
         self.emissions = []
 
-    def register_emission(self, source):
-        self.emissions.append(
-            GhostImageEmission(
-                source.length,
-                source.intensity,
-                source.sprite.position.copy(),
-                source.sprite.rotation,
-                source.draw_function,
-                source.sprite.visible_radius
-            )
-        )
+    def register_emission(self, emission):
+        self.emissions.append(emission)
 
     def unregister_emission(self, emission):
         self.emissions.remove(emission)

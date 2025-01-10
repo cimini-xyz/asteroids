@@ -1,5 +1,7 @@
 from draw.none import draw_none
 
+from vfx.ghostimage.emission import GhostImageEmission
+
 class GhostImageSource():
     def __init__(self, sprite, config, *, draw_function=draw_none, frequency=60, length=1, intensity=50):
         self.sprite = sprite
@@ -15,3 +17,13 @@ class GhostImageSource():
 
     def reset_last_emission_time(self):
         self.last_emission_time %= self.frequency
+
+    def create_emission(self):
+        return GhostImageEmission(
+            self.length,
+            self.intensity,
+            self.sprite.position.copy(),
+            self.sprite.rotation,
+            self.draw_function,
+            self.sprite.visible_radius
+        )
