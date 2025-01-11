@@ -2,8 +2,8 @@ import pygame
 from circleshape import CircleShape
 from constants import *
 from shot import Shot
-from globalhue import get_ghost_image_color
 from draw.triangle import draw_triangle
+from color.manager import ColorManager
 
 class Player(CircleShape):
     def __init__(self, x, y):
@@ -12,6 +12,7 @@ class Player(CircleShape):
         self.shoot_cooldown = 0
         self.shot_flash_length = 0
         self.visible_radius = PLAYER_VISIBLE_RADIUS
+        self.color_manager = None
     
     def draw(self, screen):
         draw_triangle(
@@ -70,6 +71,8 @@ class Player(CircleShape):
             return
         self.shoot_cooldown = PLAYER_SHOOT_COOLDOWN
         self.shot_flash_length = PLAYER_SHOT_FLASH_LENGTH
+        if self.color_manager:
+            self.color_manager.send_impulse('player_shot_flash')
         shot = Shot(self.position[0], self.position[1])
         vector = pygame.Vector2(0, 1)
         vector = vector.rotate(self.rotation)

@@ -12,6 +12,7 @@ from planet import Planet
 from vfx.ghostimage.manager import GhostImageManager
 from vfx.ghostimage.emitter import GhostImageEmitter
 from vfx.screenshake.manager import ScreenShakeManager
+from color.manager import ColorManager
 
 def main():
     print("Starting asteroids!")
@@ -29,30 +30,36 @@ def main():
 
     sprite_updatables = pygame.sprite.Group()
     sprite_drawables = pygame.sprite.Group()
+    sprite_colorables = pygame.sprite.Group()
+    ghost_image = pygame.sprite.Group()
+
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
     stars = pygame.sprite.Group()
-    ghost_image = pygame.sprite.Group()
+    
 
-    Player.containers = (sprite_updatables, sprite_drawables, ghost_image)
-    Asteroid.containers = (sprite_updatables, sprite_drawables, asteroids)
+    Player.containers = (sprite_updatables, sprite_drawables, sprite_colorables, ghost_image)
+    Asteroid.containers = (sprite_updatables, sprite_drawables, sprite_colorables, asteroids)
     AsteroidField.containers = (sprite_updatables)
     StarField.containers = (sprite_updatables)
-    Shot.containers = (sprite_updatables, sprite_drawables, shots, ghost_image)
-    Star.containers = (sprite_updatables, stars)
-    Planet.containers = (sprite_updatables, stars)
+    Shot.containers = (sprite_updatables, sprite_drawables, sprite_colorables, shots, ghost_image)
+    Star.containers = (sprite_updatables, sprite_colorables, stars)
+    Planet.containers = (sprite_updatables, sprite_colorables, stars)
     
 
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroidfield = AsteroidField()
     starfield = StarField()
 
+    color_manager = ColorManager(sprite_colorables)
+    player.color_manager = color_manager
     ghost_image_emitter = GhostImageEmitter()
     ghost_image_manager = GhostImageManager(ghost_image, ghost_image_emitter)
     updatables = [
+        color_manager,
         ghost_image_manager,
         ghost_image_emitter,
-        ScreenShakeManager().get_instance()
+        ScreenShakeManager().get_instance(),
     ]
     drawables = [
         ghost_image_emitter
@@ -64,10 +71,10 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+        
         for sprite in sprite_updatables:
             sprite.update(dt)
-        for updatable in updatables:
-            updatable.update(dt)
+        
         for asteroid in asteroids:
             for shot in shots:
                 if asteroid.collide(shot):
@@ -78,23 +85,29 @@ def main():
                 print("Game over!")
                 exit()
         
+        for updatable in updatables:
+            updatable.update(dt)
+
         reduce_asteroid_split_flash_remaining(dt)
         reduce_asteroid_kill_flash_remaining(dt)
-        update_global_hue(dt)
+        #update_global_hue(dt)
 
         for sprite in sprite_drawables:
-            update_sprite_color(sprite, player)
+            pass
+            #update_sprite_color(sprite, player)
 
         starscreen.fill((0, 0, 0, 0))
+        world.fill((0, 0, 0, 0))
         for star in stars:
-            update_star_color(star, player)
-            star.draw(starscreen)
+            pass
+            #update_star_color(star, player)
+            star.draw(world)
 
         
         #graphic
-        world.fill((0, 0, 0, 0))
         
-        screen.fill(get_background_color(player))
+        
+        screen.fill((0,0,0))#get_background_color(player))
         for drawable in drawables:
             drawable.draw(world)
         for sprite in sprite_drawables:

@@ -13,8 +13,8 @@ def asteroid(radius, num_vertices):
         points.append((x, y))
     return points
 
-def draw_asteroid(surface, color, position, rotation, radius, points):
+def draw_asteroid(surface, color, position, rotation, radius, points, width=2):
     # Transform points to world space
     world_points = [(pygame.Vector2(p) + position) for p in points]
     # True makes it close the shape
-    pygame.draw.lines(surface, color, True, world_points, 2)
+    pygame.draw.lines(surface, color, True, world_points, width)
