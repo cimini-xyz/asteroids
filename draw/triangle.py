@@ -8,7 +8,7 @@ def triangle(position, rotation, radius):
     c = position - forward * radius + right
     return [a, b, c]
 
-def draw_triangle(screen, color, position, rotation, radius):
+def draw_triangle(screen, color, position, rotation, radius, points):
     pygame.draw.polygon(
         screen,
         color,

@@ -5,13 +5,13 @@ from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
 from globalhue import update_global_hue, update_sprite_color, get_background_color, reduce_asteroid_split_flash_remaining, reduce_asteroid_kill_flash_remaining, get_gridline_a_color, get_gridline_b_color, update_star_color
-from screenfx import reduce_screen_shake_remaining, get_screen_shake
 import random
 from star import Star
 from starfield import StarField
 from planet import Planet
 from vfx.ghostimage.manager import GhostImageManager
 from vfx.ghostimage.emitter import GhostImageEmitter
+from vfx.screenshake.manager import ScreenShakeManager
 
 def main():
     print("Starting asteroids!")
@@ -51,7 +51,8 @@ def main():
     ghost_image_manager = GhostImageManager(ghost_image, ghost_image_emitter)
     updatables = [
         ghost_image_manager,
-        ghost_image_emitter
+        ghost_image_emitter,
+        ScreenShakeManager().get_instance()
     ]
     drawables = [
         ghost_image_emitter
@@ -79,7 +80,6 @@ def main():
         
         reduce_asteroid_split_flash_remaining(dt)
         reduce_asteroid_kill_flash_remaining(dt)
-        reduce_screen_shake_remaining(dt)
         update_global_hue(dt)
 
         for sprite in sprite_drawables:
@@ -100,7 +100,7 @@ def main():
         for sprite in sprite_drawables:
             sprite.draw(world)
 
-        screen_shake = get_screen_shake(dt)
+        screen_shake = ScreenShakeManager.get_instance().offset
         screen.blit(starscreen, screen_shake)
         screen.blit(world, screen_shake)
         

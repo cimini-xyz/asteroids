@@ -3,6 +3,7 @@ def draw_none(
         color,
         position,
         rotation,
-        width
+        width,
+        points
     ):
         return None

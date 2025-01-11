@@ -19,7 +19,8 @@ class Player(CircleShape):
             self.color,
             self.position,
             self.rotation,
-            self.visible_radius
+            self.visible_radius,
+            None
         )
 
     def update(self, dt):

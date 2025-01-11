@@ -1,2 +1,7 @@
 venv/
 __pycache__/
+*.egg-info/
+*.egg
+__pycache__/
+*.pyc
+.eggs/

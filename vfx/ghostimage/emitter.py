@@ -41,5 +41,6 @@ class GhostImageEmitter():
                     ),
                     emission.position,
                     emission.rotation,
-                    emission.radius
+                    emission.radius,
+                    None
                 )

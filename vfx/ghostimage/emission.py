@@ -1,3 +1,6 @@
+
+# Blue print for generated emissions through emitter on screen
+# Handles emission properties and emission state
 class GhostImageEmission():
     def __init__(self, length, intensity, position, rotation, draw_function, radius):
         self.length = length
