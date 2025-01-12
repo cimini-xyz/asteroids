@@ -27,6 +27,7 @@ class DeviceMapping():
         self.output = defaultdict(set)
 
 class Device:
+    default_device_bus_name = 'default'
     def __init__(self, signal_combiner=sum):
         self.state = DeviceState.ALIVE
         self.connect = ConnectionMapping()
@@ -38,7 +39,7 @@ class Device:
             return
         return self._update(dt)
 
-    def evaluate(self, bus_name=None):
+    def evaluate(self, bus_name='default'):
         if self.state is DeviceState.DEAD:
             return 0
         if not isinstance(self, Generator) and not self.connect.input:
@@ -53,42 +54,58 @@ class Device:
     def _update(self, dt):
         raise NotImplementedError
     
-    def _evaluate(self, bus_name=None):
+    def _evaluate(self, bus_name='default'):
         raise NotImplementedError
     
-    def disconect_all_devices_from_device_map(self, device_map):
-        for connected_device, bus_names in list(device_map.items()):
-            for bus_name in bus_names:
-                connected_device.disconnect_from(self, bus_name)
+    def disconnect_all_devices_from_device_map(self, device_map):
+        tasks = []
+        for connected_device in device_map:
+            for bus_name in device_map[connected_device]:
+                tasks.append((connected_device, bus_name))
+        for task_args in tasks:
+            self.disconnect_from(task_args[0], task_args[1])
 
     def remove(self):
         self.disconnect_all_devices_from_device_map(self.device_map.input)
         self.disconnect_all_devices_from_device_map(self.device_map.output)
 
 
-    def get_connection_arguments(self, output_device, bus_name=None):
+    def get_connection_arguments(self, output_device, bus_name='default'):
         return [
             # Adds or discards target device [1] from source device output bus [0]
             (self.connect.output[bus_name], output_device),
             # Adds or discards source device [1] from target device input bus [0]
             (output_device.connect.input[bus_name], self),
-            # Adds or discards bus name [1] from target device 'source device -> in bus' map [0]
+            # Adds or discards bus name [1] from tarbus_nameget device 'source device -> in bus' map [0]
             (output_device.device_map.input[self], bus_name),
             # Adds or discards bus name [1] from source device 'target device -> in bus' map [0]
             (self.device_map.output[output_device], bus_name)
         ]
     
-    def connect_to(self, output_device, bus_name=None):
+    def connect_to(self, output_device, bus_name='default'):
         args = self.get_connection_arguments(output_device, bus_name)
         for arg in args:
             arg[0].add(arg[1])
 
-    def disconnect_from(self, output_device, bus_name=None):
+    def clean_entry_name(self, group, name):
+        if not group[name]:
+            del group[name]
+
+    def clean_device_name(self, map, device_name):
+        if not map[device_name]:
+            del map[device_name]
+
+    def disconnect_from(self, output_device, bus_name='default'):
         args = self.get_connection_arguments(output_device, bus_name)
         for arg in args:
             arg[0].discard(arg[1])
+        self.clean_entry_name(self.connect.output, bus_name)
+        self.clean_entry_name(output_device.connect.input, bus_name)
+        self.clean_entry_name(self.device_map.output, output_device)
+        self.clean_entry_name(output_device.device_map.input, self)
 
-    def get_signals(self, bus_name=None):
+
+    def get_signals(self, bus_name='default'):
         return (device.evaluate(bus_name) for device in self.connect.input[bus_name])
     
     def toggle_freeze(self):
@@ -97,7 +114,17 @@ class Device:
             print("I am alive")
         else:
             self.state = DeviceState.FROZEN
-            print("I am frozen")
+            print("I am freezy")
+        
+        
+
+    def toggle_bypass(self):
+        if self.state == DeviceState.DISABLED:
+            self.state = DeviceState.ALIVE
+            print("I am alive")
+        else:
+            self.state = DeviceState.DISABLED
+            print("I am disabled")
     
 
 class Generator(Device):
@@ -108,7 +135,7 @@ class Generator(Device):
     def _update(self, dt):
         return
 
-    def _evaluate(self, bus_name=None):
+    def _evaluate(self, bus_name='default'):
         return self.generator() if self.connect.output[bus_name] else 0.0
     
 
@@ -119,9 +146,9 @@ class Impulse(Device):
         self._remaining = 0.0
         self.retrigger = retrigger
 
-    def _evaluate(self, bus_name=None):
+    def _evaluate(self, bus_name='default'):
         factor = self._remaining if self._remaining > 0 else 0
-        return self.signal_combiner(self.get_signals()) * factor
+        return self.signal_combiner(self.get_signals(bus_name)) * factor
 
     def _update(self, dt):
         if self.retrigger and self._remaining <= 0:
@@ -137,7 +164,7 @@ class Channel(Device):
     def __init__(self):
         super().__init__()
 
-    def _evaluate(self, bus_name=None):
+    def _evaluate(self, bus_name='default'):
         return self.signal_combiner(self.get_signals(bus_name))
 
     def _update(self, dt):
@@ -157,8 +184,8 @@ class Mixer(Device):
             return 0.0
         return self.evaluate() * self.bus[bus_name]
 
-    def _evaluate(self, bus_name = None):
-        return self.signal_combiner(self.get_signals())
+    def _evaluate(self, bus_name='default'):
+        return self.signal_combiner(self.get_signals(bus_name))
 
     def _update(self, dt):
-        pass  # If no update logic needed
+        pass 
