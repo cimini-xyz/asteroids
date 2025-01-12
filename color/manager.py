@@ -6,6 +6,9 @@ from color.channelgroup import ColorChannelGroup
 def clamp(value, min_value=0, max_value=1.0):
     return max(min_value, min(max_value, value))
 
+def clamp_hsv(hsv):
+    return tuple(clamp(c) for c in hsv)
+
 
 class ColorManager():
     def __init__(self, sprite_group):
@@ -31,8 +34,33 @@ class ColorManager():
     def update_hue(self, dt):
         self.hue = self.hue_animation.function(self.hue, dt)
 
+    def get_sprite_hsv_modifiers(self, sprite):
+        return tuple(
+            getattr(sprite, modifier, 0.0)
+            for modifier in (
+                'hue_modifier',
+                'sat_modifier',
+                'val_modifier'
+            )
+        )
+    
+    def combine_hsv(self, hsv_list):
+        hue = 0.0
+        sat = 0.0
+        val = 0.0
+        for hsv in hsv_list:
+            hue += hsv[0]
+            sat += hsv[1]
+            val += hsv[2]
+        return (hue, sat, val)
+
     def update_sprite_color(self, sprite):
-        combined_hsv = self.get_combined_hsv()
+        hsv = [
+            self.get_base_hsv(),
+            self.channels.get_channel_values(),
+            self.get_sprite_hsv_modifiers(sprite)
+        ]
+        combined_hsv = clamp_hsv(self.combine_hsv(hsv))
         print(combined_hsv)
         sprite.color = self.get_rgb(combined_hsv[0], combined_hsv[1], combined_hsv[2])
 
