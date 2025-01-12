@@ -86,6 +86,7 @@ class Device:
         args = self.get_connection_arguments(output_device, bus_name)
         for arg in args:
             arg[0].add(arg[1])
+        return output_device
 
     def clean_entry_name(self, group, name):
         if not group[name]:
@@ -103,6 +104,7 @@ class Device:
         self.clean_entry_name(output_device.connect.input, bus_name)
         self.clean_entry_name(self.device_map.output, output_device)
         self.clean_entry_name(output_device.device_map.input, self)
+        return output_device
 
 
     def get_signals(self, bus_name='default'):
@@ -170,19 +172,29 @@ class Channel(Device):
     def _update(self, dt):
         pass  # If no update logic needed
 
+class ChannelCombiner(Device):
+    def __init__(self):
+        super().__init__()
+    
+    def _evaluate(self, bus_name='default'):
+        return self.signal_combiner(chain.from_iterable(list(self.get_signals(bus)) for bus in self.connect.input))
+    
+    def _update(self, dt):
+        pass
+
 class Mixer(Device):
     def __init__(self):
         super().__init__()
-        self.fader = {}
-        self.bus = {}
+        self.bus_fader_gain = defaultdict(lambda: 1.0)
 
     def set_bus(self, bus_name, gain=1.0):
-        self.bus[bus_name] = gain
+        self.bus_fader_gain[bus_name] = gain
+        return self
 
-    def evaluate_bus(self, bus_name):
-        if bus_name not in self.bus:
+    def evaluate_bus(self, bus_name='default'):
+        if bus_name not in self.bus_fader_gain:
             return 0.0
-        return self.evaluate() * self.bus[bus_name]
+        return self.evaluate() * self.bus_fader_gain[bus_name]
 
     def _evaluate(self, bus_name='default'):
         return self.signal_combiner(self.get_signals(bus_name))
