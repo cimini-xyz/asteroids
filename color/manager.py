@@ -61,7 +61,6 @@ class ColorManager():
             self.get_sprite_hsv_modifiers(sprite)
         ]
         combined_hsv = clamp_hsv(self.combine_hsv(hsv))
-        print(combined_hsv)
         sprite.color = self.get_rgb(combined_hsv[0], combined_hsv[1], combined_hsv[2])
 
     def update_sprites(self):

@@ -21,7 +21,7 @@ class Device:
         self.signal_combiner = signal_combiner
 
     def update(self, dt):
-        if self.state in (DeviceState.FROZEN, DeviceState.DISABLED, DeviceState.DEAD):
+        if self.not_updateable():
             return
         return self._update(dt)
 
@@ -31,6 +31,9 @@ class Device:
         if not isinstance(self, Generator) and not self.input_connections:
             return 0
         return self._evaluate(t)
+    
+    def not_updateable(self):
+        return self.state in (DeviceState.FROZEN, DeviceState.DISABLED, DeviceState.DEAD)
     
     def _update(self, dt):
         raise NotImplementedError
@@ -58,7 +61,15 @@ class Device:
 
     def get_signals(self, t):
         return (device.evaluate(t) for device in self.input_connections)
-
+    
+    def toggle_freeze(self):
+        if self.state == DeviceState.FROZEN:
+            self.state = DeviceState.ALIVE
+            print("I am alive")
+        else:
+            self.state = DeviceState.FROZEN
+            print("I am frozen")
+        
 class Generator(Device):
     def __init__(self, generator_func=constant):
         super().__init__()
@@ -75,7 +86,7 @@ class Impulse(Device):
     def __init__(self, length = 0.0, retrigger=False):
         super().__init__()
         self.length = length
-        self._remaining = length
+        self._remaining = 0.0
         self.retrigger = retrigger
 
     def _evaluate(self, t):
@@ -88,6 +99,8 @@ class Impulse(Device):
         self._remaining = max(0, self._remaining - dt)
 
     def reset(self):
+        if self.not_updateable():
+            return
         self._remaining = self.length
 
 class Channel(Device):
@@ -106,9 +119,13 @@ class Mixer(Device):
         self.bus = {}
     
     def set_bus(self, name, gain=1.0):
+        if self.not_updateable():
+            return
         self.bus[name] = gain
 
     def remove_bus(self, name):
+        if self.not_updateable():
+            return
         self.bus.pop(name, None)
 
     def evaluate_bus(self, name, t):

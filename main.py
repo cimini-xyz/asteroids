@@ -13,6 +13,7 @@ from vfx.ghostimage.manager import GhostImageManager
 from vfx.ghostimage.emitter import GhostImageEmitter
 from vfx.screenshake.manager import ScreenShakeManager
 from color.manager import ColorManager
+from devicemanager import hello, freeze
 
 def main():
     print("Starting asteroids!")
@@ -65,9 +66,16 @@ def main():
         ghost_image_emitter
     ]
     
-
+    t = 0
     while True:
-        #logic  
+        #logic
+        t += dt
+        hello(dt)
+        if t > 1:
+            freeze()
+            t = 0
+
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
