@@ -3,6 +3,12 @@ from color.config import ColorConfig
 from color.impulse import ColorImpulse
 from color.channelgroup import ColorChannelGroup
 
+from collections import defaultdict
+from devicemanager import get_player_shot_flash
+from star import Star
+from asteroid import Asteroid
+from planet import Planet
+
 def clamp(value, min_value=0, max_value=1.0):
     return max(min_value, min(max_value, value))
 
@@ -44,6 +50,16 @@ class ColorManager():
             )
         )
     
+    def get_dynamic_hsv_modifiers(self, sprite):
+        keys = defaultdict(lambda : 'default',
+                           {
+                               'background' : 'background',
+                               Star : 'star',
+                               Planet : 'star'
+                           })
+        return (0.0, get_player_shot_flash(keys[type(sprite)]), get_player_shot_flash(keys[type(sprite)]))
+
+
     def combine_hsv(self, hsv_list):
         hue = 0.0
         sat = 0.0
@@ -58,7 +74,8 @@ class ColorManager():
         hsv = [
             self.get_base_hsv(),
             self.channels.get_channel_values(),
-            self.get_sprite_hsv_modifiers(sprite)
+            #self.get_sprite_hsv_modifiers(sprite),
+            self.get_dynamic_hsv_modifiers(sprite)
         ]
         combined_hsv = clamp_hsv(self.combine_hsv(hsv))
         sprite.color = self.get_rgb(combined_hsv[0], combined_hsv[1], combined_hsv[2])

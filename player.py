@@ -4,7 +4,8 @@ from constants import *
 from shot import Shot
 from draw.triangle import draw_triangle
 from color.manager import ColorManager
-from devicemanager import retrigger, freeze
+from devicemanager import retrigger
+
 class Player(CircleShape):
     def __init__(self, x, y):
         super().__init__(x, y, PLAYER_RADIUS)
@@ -28,7 +29,6 @@ class Player(CircleShape):
         self.shoot_cooldown = max(0, self.shoot_cooldown - dt)
         self.shot_flash_length = max(0, self.shot_flash_length - dt)
         keys = pygame.key.get_pressed()
-        pygame.key.set_repeat(500, 100)
         if keys[pygame.K_a]:
             self.rotate(-dt)
         if keys[pygame.K_d]:
@@ -43,9 +43,7 @@ class Player(CircleShape):
             self.strafe_right(dt)
         if keys[pygame.K_SPACE]:
             self.shoot(dt)
-
-        if keys[pygame.K_f] and not self.shoot_cooldown:
-            freeze()
+            
         
     def rotate(self, dt):
         self.rotation += PLAYER_TURN_SPEED * dt
@@ -74,9 +72,9 @@ class Player(CircleShape):
             return
         self.shoot_cooldown = PLAYER_SHOOT_COOLDOWN
         self.shot_flash_length = PLAYER_SHOT_FLASH_LENGTH
-        if self.color_manager:
-            self.color_manager.send_impulse('player_shot_flash')
-            retrigger()
+        #if self.color_manager:
+            #self.color_manager.send_impulse('player_shot_flash')
+        retrigger()
         shot = Shot(self.position[0], self.position[1])
         vector = pygame.Vector2(0, 1)
         vector = vector.rotate(self.rotation)

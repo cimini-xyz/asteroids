@@ -17,9 +17,9 @@ def cycle_value(value, dt):
 def fill_values(length, intensity):
     return (1.0, 1.0, 1.0)
 
-def player_shot_flash(length, intensity):
-    intensity *= length
-    return (0.0, intensity, intensity)
+#def player_shot_flash(length, intensity):
+#    intensity *= length
+#    return (0.0, intensity, intensity)
 
 
 class ColorImpulseConfigEntry():
@@ -44,7 +44,7 @@ class ColorConfig():
                 'player_shot_flash' : ColorImpulseConfigEntry(
                     length=PLAYER_SHOT_FLASH_LENGTH,
                     intensity=PLAYER_SHOT_FLASH_INTENSITY,
-                    function=player_shot_flash
+                    function=lambda t, x : (0.0, 0.0, 0.0) #player_shot_flash
                 )
             }
         )

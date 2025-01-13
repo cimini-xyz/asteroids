@@ -3,7 +3,7 @@ from signal import ConstantSignal
 class Processor():
     def __init__(self, signal):
         self._signal = signal
-        
+
     def update(self, dt):
         """Update processor state"""
         raise NotImplementedError

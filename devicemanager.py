@@ -1,126 +1,142 @@
 from device import *
 from constants import (
     PLAYER_SHOT_FLASH_LENGTH,
-    PLAYER_SHOT_FLASH_INTENSITY
+    PLAYER_SHOT_FLASH_INTENSITY,
+    ASTEROID_KILL_FLASH_LENGTH,
+    ASTEROID_KILL_FLASH_INTENSITY,
+    ASTEROID_SPLIT_FLASH_LENGTH,
+    ASTEROID_SPLIT_FLASH_INTENSITY
 )
 
+from star import Star
+from asteroid import Asteroid
 
-updatables = [
-    generator2 := Generator(constant(PLAYER_SHOT_FLASH_INTENSITY*3)),
-    generator_player_shot_flash := Generator(constant(PLAYER_SHOT_FLASH_INTENSITY)),
-    impulse_player_shot_flash := Impulse(PLAYER_SHOT_FLASH_LENGTH),
-    channel_player_shot_flash := Channel(),
-    mixer_player_shot_flash := Mixer()
-]
+def flatten_dict(d):
+    result = []
+    for value in d.values():
+        if isinstance(value, dict):
+            result.extend(flatten_dict(value))
+        else:
+            result.append(value)
+    return result
 
-for device in updatables:
-    print("This device is: ", device)
-    for device_in in device.device_map.output:
-        print("This output device is: ", device_in)
-        print("These are the busses: ", device.device_map.output[device_in])
-    print(":)")
+def create_impulse_device_chain(label='impulse', intensity=1.0, length=1.0):
+    generator = Generator(constant(intensity))
+    impulse = Impulse(length)
+    sendreturn = SendReturn()
+    sendreturn.cache_signal_per_frame = False
+    sendreturn.routes['star_' + label] = ['default']
+    sendreturn.routes['background_' + label] = ['default']
+    generator \
+        .connect_to(impulse) \
+        .connect_to(sendreturn)
+    return {
+            'generator' : generator,
+            'impulse' : impulse,
+            'sendreturn' : sendreturn
+        }
 
-mixer_player_shot_flash \
-    .set_bus('asteroid') \
-    .set_bus('player') \
-    .set_bus('background', 1/64) \
-    .set_bus('star', 1/64) \
-    .signal_combiner = max
+def create_dynamic_flash_device_chain():
+    device_chain = {}
+    device_chain['player_shot_flash'] = create_impulse_device_chain(
+        'player_shot_flash',
+        PLAYER_SHOT_FLASH_INTENSITY,
+        PLAYER_SHOT_FLASH_LENGTH)
+    device_chain['asteroid_split_flash'] = create_impulse_device_chain(
+        'asteroid_split_flash',
+        ASTEROID_SPLIT_FLASH_INTENSITY,
+        ASTEROID_SPLIT_FLASH_LENGTH)
+    device_chain['asteroid_kill_flash'] = create_impulse_device_chain(
+        'asteroid_kill_flash',
+        ASTEROID_KILL_FLASH_INTENSITY,
+        ASTEROID_KILL_FLASH_LENGTH)
+    
+    mixer = Mixer()
+    limiter = Limiter()
+    channel_combiner_star = ChannelCombiner()
+    channel_combiner_background = ChannelCombiner()
+    channel_combiner_default = ChannelCombiner()
 
-generator_player_shot_flash \
-    .connect_to(impulse_player_shot_flash) \
-    .connect_to(channel_player_shot_flash) \
-    .connect_to(mixer_player_shot_flash)
+    device_chain['mixer'] = mixer
+    
+    device_chain['cc_star'] = channel_combiner_star
+    device_chain['cc_background'] = channel_combiner_background
+    device_chain['cc_default'] = channel_combiner_default
 
+    player_shot_flash_sendreturn = device_chain \
+        ['player_shot_flash'] \
+        ['sendreturn']
+        
+    asteroid_split_flash_sendreturn = device_chain \
+        ['asteroid_split_flash'] \
+        ['sendreturn'] \
+    
+    asteroid_kill_flash_sendreturn = device_chain \
+        ['asteroid_kill_flash'] \
+        ['sendreturn'] \
 
-generator2 \
-    .connect_to(impulse_player_shot_flash, bus_name='asdf') \
-    .connect_to(channel_player_shot_flash, bus_name='asdf') \
-    .connect_to(mixer_player_shot_flash, bus_name='asdf')
+    player_shot_flash_sendreturn.connect_to(mixer, 'star_player_shot_flash')
+    asteroid_split_flash_sendreturn.connect_to(mixer, 'star_asteroid_split_flash')
+    asteroid_kill_flash_sendreturn.connect_to(mixer, 'star_asteroid_kill_flash')
+    player_shot_flash_sendreturn.connect_to(mixer, 'background_player_shot_flash')
+    asteroid_split_flash_sendreturn.connect_to(mixer, 'background_asteroid_split_flash')
+    asteroid_kill_flash_sendreturn.connect_to(mixer, 'background_asteroid_kill_flash')
 
+    player_shot_flash_sendreturn.connect_to(channel_combiner_default)
+    asteroid_split_flash_sendreturn.connect_to(channel_combiner_default)
+    asteroid_kill_flash_sendreturn.connect_to(channel_combiner_default)
 
+    mixer.set_bus('star_player_shot_flash', 6/64)
+    mixer.set_bus('star_asteroid_split_flash', 6/32)
+    mixer.set_bus('star_asteroid_kill_flash', 6/22)
+    mixer.set_bus('background_player_shot_flash', 3/64)
+    mixer.set_bus('background_asteroid_split_flash', 3/32)
+    mixer.set_bus('background_asteroid_kill_flash', 3/22)
 
-print("Newly connected")
-for device in updatables:
-    print("This device is: ", device)
-    for device_in in device.device_map.output:
-        print("This output device is: ", device_in)
-        print("These are the busses: ", device.device_map.output[device_in])
-    print(":)")
+    mixer.connect_to(channel_combiner_background, 'background_player_shot_flash')
+    mixer.connect_to(channel_combiner_background, 'background_asteroid_split_flash')
+    mixer.connect_to(channel_combiner_background, 'background_asteroid_kill_flash')
+    mixer.connect_to(channel_combiner_star, 'star_player_shot_flash')
+    mixer.connect_to(channel_combiner_star, 'star_asteroid_split_flash')
+    mixer.connect_to(channel_combiner_star, 'star_asteroid_kill_flash')
 
-#print("Everything should be removed")
-#generator2.remove()
-#generator_player_shot_flash.remove()
-#impulse_player_shot_flash.remove()
-#channel_player_shot_flash.remove()
-#mixer_player_shot_flash.remove()
+    channel_combiner_background.connect_to(limiter, "background")
+    channel_combiner_star.connect_to(limiter, "star")
 
-generator_player_shot_flash.disconnect_from(impulse_player_shot_flash)
-impulse_player_shot_flash.disconnect_from(channel_player_shot_flash)
-channel_player_shot_flash.disconnect_from(mixer_player_shot_flash)
+    channel_combiner_default.connect_to(limiter)
 
-for device in updatables:
-    print("This device is: ", device)
-    for device_in in device.device_map.output:
-        print("This output device is: ", device_in)
-        print("These are the busses: ", device.device_map.output[device_in])
-    print(":)")
+    device_chain['limiter'] = limiter
 
-updatables = [
-    generator2 := Generator(constant(PLAYER_SHOT_FLASH_INTENSITY*3)),
-    generator_player_shot_flash := Generator(constant(PLAYER_SHOT_FLASH_INTENSITY)),
-    impulse_player_shot_flash := Impulse(PLAYER_SHOT_FLASH_LENGTH),
-    channel_player_shot_flash := Channel(),
-    mixer_player_shot_flash := Mixer(),
-    channel_combiner := ChannelCombiner(),
-    generator_3 := Generator(constant(PLAYER_SHOT_FLASH_INTENSITY/2))
-]
-mixer_player_shot_flash \
-    .set_bus('asteroid') \
-    .set_bus('player') \
-    .set_bus('background', 1/64) \
-    .set_bus('star', 1/64) \
-    .signal_combiner = max
+    return device_chain
 
-generator_player_shot_flash \
-    .connect_to(impulse_player_shot_flash) \
-    .connect_to(channel_player_shot_flash) \
-    .connect_to(mixer_player_shot_flash)
+dynamic_flash_device_chain = create_dynamic_flash_device_chain()
 
-generator2 \
-    .connect_to(impulse_player_shot_flash, bus_name='asdf') \
-    .connect_to(channel_player_shot_flash, bus_name='asdf') \
-    .connect_to(mixer_player_shot_flash, bus_name='asdf')
-
-
-#generator_3.connect_to(channel_player_shot_flash, "asdf")
-channel_player_shot_flash.connect_to(channel_combiner)
-channel_player_shot_flash.connect_to(channel_combiner, bus_name="asdf")
-channel_combiner.signal_combiner=sum
-
-channel_combiner.connect_to(mixer_player_shot_flash, "combined_channels")
+updatables = flatten_dict(dynamic_flash_device_chain)
 
 def hello(dt):
     for updatable in updatables:
         updatable.update(dt)
-    print(
-        mixer_player_shot_flash.evaluate_bus('asteroid'),
-        mixer_player_shot_flash.evaluate_bus('player'),
-        mixer_player_shot_flash.evaluate_bus('background'),
-        mixer_player_shot_flash.evaluate_bus('star')
-    )
-    print(
-        mixer_player_shot_flash.evaluate('asdf')
-    )
-    print(
-        mixer_player_shot_flash.evaluate('combined_channels')
-    )
+    #print(channel_player_shot_flash.evaluate())
+    #print(get_player_shot_flash('star'))
 
 def retrigger():
-    impulse_player_shot_flash.reset()
+        dynamic_flash_device_chain \
+        ['player_shot_flash'] \
+        ['impulse'] \
+            .reset()
+
 
 def freeze():
-    impulse_player_shot_flash.toggle_freeze()
+    dynamic_flash_device_chain \
+        ['player_shot_flash'] \
+        ['impulse'] \
+            .toggle_freeze()
 
 def bypass():
-    impulse_player_shot_flash.toggle_bypass()
+        dynamic_flash_device_chain \
+        ['player_shot_flash'] \
+        ['impulse'] \
+            .bypass()
+
+def get_player_shot_flash(bus_name='default'):
+    return dynamic_flash_device_chain['limiter'].evaluate(bus_name)

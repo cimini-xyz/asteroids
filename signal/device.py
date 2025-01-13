@@ -26,7 +26,7 @@ class Device:
         return self._update(dt)
 
     def evaluate(self, t):
-        if self.state in (DeviceState.DISABLED, DeviceState.DEAD):
+        if self.state == DeviceState.DEAD:
             return 0
         if not isinstance(self, Generator) and not self.input_connections:
             return 0
@@ -56,8 +56,9 @@ class Device:
         if self in output_device.input_connections:
             output_device.input_connections.remove(self)
 
-    def get_signals(self, t):
-        return (device.evaluate(t) for device in self.input_connections)
+    def get_signals(self, bus_name):
+        if self.input_connections
+        return (device.evaluate() for device in self.input_connections)
 
 class Generator(Device):
     def __init__(self, generator_func=constant):

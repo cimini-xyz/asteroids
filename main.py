@@ -4,7 +4,7 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
-from globalhue import update_global_hue, update_sprite_color, get_background_color, reduce_asteroid_split_flash_remaining, reduce_asteroid_kill_flash_remaining, get_gridline_a_color, get_gridline_b_color, update_star_color
+#from globalhue import update_global_hue, update_sprite_color, get_background_color, reduce_asteroid_split_flash_remaining, reduce_asteroid_kill_flash_remaining, get_gridline_a_color, get_gridline_b_color, update_star_color
 import random
 from star import Star
 from starfield import StarField
@@ -66,29 +66,32 @@ def main():
         ghost_image_emitter
     ]
     
-    counter = 0
-    t = 0
+    #counter = 0
+    #t = 0
     while True:
-        #logic
-        t += dt
         hello(dt)
-        if t > 1:
-            if counter == 3:
-                bypass()
-            if counter == 2:
-                bypass()
-            if counter == 1:
-                freeze()
-            if counter == 0:
-                freeze()
-            counter = (counter + 1) % 4
+        #logic
+        #t += dt
+        #hello(dt)
+        #if t > 1:
+            #if counter == 3:
+            #    bypass()
+            #if counter == 2:
+            #    bypass()
+            #if counter == 1:
+            #    freeze()
+            #if counter == 0:
+            #    freeze()
+            #counter = (counter + 1) % 4
             
-            t = 0
+            #t = 0
             
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+    
+
         
         for sprite in sprite_updatables:
             sprite.update(dt)
@@ -106,8 +109,8 @@ def main():
         for updatable in updatables:
             updatable.update(dt)
 
-        reduce_asteroid_split_flash_remaining(dt)
-        reduce_asteroid_kill_flash_remaining(dt)
+        #reduce_asteroid_split_flash_remaining(dt)
+        #reduce_asteroid_kill_flash_remaining(dt)
         #update_global_hue(dt)
 
         for sprite in sprite_drawables:
