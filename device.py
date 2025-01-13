@@ -92,7 +92,7 @@ class Device:
     def evaluate(self, bus_name='default'):
         if self.state is DeviceState.DEAD:
             return 0.1
-        if (not isinstance(self, Generator) and not isinstance(self, SendReturn)) and not self.connect.input[bus_name]:
+        if (not isinstance(self, Generator) and not isinstance(self, SendReturn) and not isinstance(self, ChannelCombiner)) and not self.connect.input[bus_name]:
             return 0.46
         if self.state is DeviceState.DISABLED:
             return sum(self.get_signals(bus_name))
@@ -187,8 +187,14 @@ class SendReturn(Device):
         pass
 
     def _evaluate(self, bus_name='default'):
-        signals = [signal for route in self.routes[bus_name] for signal in self.get_signals(route)]
-        return self.signal_combiner(signals)
+        #signals = [signal for route in self.routes[bus_name] for signal in self.get_signals(route)]
+        #return self.signal_combiner(signals)
+        return self.signal_combiner(
+            chain.from_iterable(
+                list(self.get_signals(bus)) 
+                for bus in self.routes[bus_name]
+            )
+        )
 
 class Generator(Device):
     def __init__(self, generator_func=constant):
@@ -282,7 +288,7 @@ class SubtractiveMixer(Mixer):
 
     def _evaluate(self, bus_name='default'):
         fader_gain_factor = self.bus_fader_gain[bus_name]
-        return self.signal_combiner(self.get_signals(bus_name)) - self.bus_fader_gain_factor
+        return self.signal_combiner(self.get_signals(bus_name)) + fader_gain_factor
 
     def _update(self, dt):
         pass 

@@ -70,6 +70,7 @@ def main():
     #t = 0
     while True:
         hello(dt)
+        #print(dt)
         #logic
         #t += dt
         #hello(dt)
@@ -128,7 +129,7 @@ def main():
         #graphic
         
         
-        screen.fill((0,0,0))#get_background_color(player))
+        screen.fill(color_manager.background_color)#get_background_color(player))
         for drawable in drawables:
             drawable.draw(world)
         for sprite in sprite_drawables:

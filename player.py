@@ -4,7 +4,7 @@ from constants import *
 from shot import Shot
 from draw.triangle import draw_triangle
 from color.manager import ColorManager
-from devicemanager import retrigger
+from devicemanager import retrigger_player_shot
 
 class Player(CircleShape):
     def __init__(self, x, y):
@@ -71,10 +71,10 @@ class Player(CircleShape):
         if self.shoot_cooldown > 0:
             return
         self.shoot_cooldown = PLAYER_SHOOT_COOLDOWN
-        self.shot_flash_length = PLAYER_SHOT_FLASH_LENGTH
+        #self.shot_flash_length = PLAYER_SHOT_FLASH_LENGTH
         #if self.color_manager:
             #self.color_manager.send_impulse('player_shot_flash')
-        retrigger()
+        retrigger_player_shot()
         shot = Shot(self.position[0], self.position[1])
         vector = pygame.Vector2(0, 1)
         vector = vector.rotate(self.rotation)

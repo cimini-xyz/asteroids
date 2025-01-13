@@ -14,7 +14,7 @@ from constants import (
     ASTEROID_KILL_FLASH_INTENSITY
 )
 
-
+from devicemanager import dynamic_flash_device_chain
 
 global_hue = BASE_GLOBAL_HUE
 global_sat = BASE_GLOBAL_SAT
@@ -120,4 +120,7 @@ def get_asteroid_kill_flash_brightness():
 def get_ghost_image_color(remaining_length, intensity):
     intensity = min(255, remaining_length * intensity)
     color = get_rgb_from_hue()
+    dynamic_sat = dynamic_flash_device_chain['sendreturn'].evaluate('background_sat')
+    dynamic_val = dynamic_flash_device_chain['sendreturn'].evaluate('background_val')
+    color = (color[0], color[1] + (dynamic_sat * 40), (color[2] + dynamic_val * 10))
     return color + (intensity,)

@@ -4,7 +4,7 @@ from color.impulse import ColorImpulse
 from color.channelgroup import ColorChannelGroup
 
 from collections import defaultdict
-from devicemanager import get_player_shot_flash
+from devicemanager import dynamic_flash_device_chain
 from star import Star
 from asteroid import Asteroid
 from planet import Planet
@@ -29,12 +29,15 @@ class ColorManager():
             animations
             ['cycle']
         )
+        self.background_color = (0,0,0)
         self.impulses = []
         self.channels = ColorChannelGroup()
 
     def update(self, dt):
         self.update_hue(dt)
-        self.channels.update(dt)
+        #self.channels.update(dt)
+        self.get_background_color()
+        print(self.background_color)
         self.update_sprites()
 
     def update_hue(self, dt):
@@ -51,15 +54,46 @@ class ColorManager():
         )
     
     def get_dynamic_hsv_modifiers(self, sprite):
-        keys = defaultdict(lambda : 'default',
-                           {
-                               'background' : 'background',
-                               Star : 'star',
-                               Planet : 'star'
-                           })
-        return (0.0, get_player_shot_flash(keys[type(sprite)]), get_player_shot_flash(keys[type(sprite)]))
+        hue, sat, val = 0.0, 0.0, 0.0
+        if isinstance(sprite, Star) or isinstance(sprite, Planet):
+            hue = 0.0
+            sat = dynamic_flash_device_chain['sub_mixer'].evaluate('star_sat')
+            val = dynamic_flash_device_chain['sub_mixer'].evaluate('star_val')
+        else:
+            hue = 0.0
+            sat = dynamic_flash_device_chain['sub_mixer'].evaluate()
+            val = dynamic_flash_device_chain['sub_mixer'].evaluate()
+        #print(type(sprite), (hue, sat, val))
+        
+        #for bus_name in dynamic_flash_device_chain['mixer'].connect.output:
+            #print('mixer', bus_name, dynamic_flash_device_chain['mixer'].evaluate(bus_name))
+        #print('cc_star', dynamic_flash_device_chain['cc_star'].evaluate())
+        #for bus_name in dynamic_flash_device_chain['cc_star'].connect.input:
+            #print('cc_star', bus_name, dynamic_flash_device_chain['cc_star'].evaluate(bus_name))
+        #for bus_name in dynamic_flash_device_chain['sendreturn'].connect.input:
+            #print('final sendreturn', bus_name, dynamic_flash_device_chain['sendreturn'].evaluate(bus_name))
+        #for bus_name in dynamic_flash_device_chain['sub_mixer'].connect.input:
+            #print('submixer', bus_name, dynamic_flash_device_chain['sub_mixer'].evaluate(bus_name))
+        return (hue, sat, val)
 
+    def get_background_color(self):
+        hue = 0.0
+        sat = dynamic_flash_device_chain['sub_mixer'].evaluate('background_sat')
+        val = dynamic_flash_device_chain['sub_mixer'].evaluate('background_val')
+        hsv = [
+            self.get_base_hsv(),
+            #self.channels.get_channel_values(),
+            #self.get_sprite_hsv_modifiers(sprite),
+            (hue, sat, val)
+        ]
+        
+        #print(type(sprite))
+        #print(hsv[0], hsv[1])
 
+        combined_hsv = clamp_hsv(self.combine_hsv(hsv))
+        self.background_color = self.get_rgb(combined_hsv[0], combined_hsv[1], combined_hsv[2])
+
+        
     def combine_hsv(self, hsv_list):
         hue = 0.0
         sat = 0.0
@@ -73,11 +107,16 @@ class ColorManager():
     def update_sprite_color(self, sprite):
         hsv = [
             self.get_base_hsv(),
-            self.channels.get_channel_values(),
+            #self.channels.get_channel_values(),
             #self.get_sprite_hsv_modifiers(sprite),
             self.get_dynamic_hsv_modifiers(sprite)
         ]
+        
+        #print(type(sprite))
+        #print(hsv[0], hsv[1])
+
         combined_hsv = clamp_hsv(self.combine_hsv(hsv))
+        #print(combined_hsv)
         sprite.color = self.get_rgb(combined_hsv[0], combined_hsv[1], combined_hsv[2])
 
     def update_sprites(self):
