@@ -33,10 +33,13 @@ class Device:
         self.connect = ConnectionMapping()
         self.device_map = DeviceMapping()
         self.signal_combiner = signal_combiner
+        self.cache_signal = True
+        self.cached_signal = None
         
     def update(self, dt):
         if self.not_updateable():
             return
+        self.cached_signal = None
         return self._update(dt)
 
     def evaluate(self, bus_name='default'):
@@ -46,6 +49,12 @@ class Device:
             return 0
         if self.state is DeviceState.DISABLED:
             return sum(self.get_signals(bus_name))
+        
+        if self.cache_signal:
+            if not self.cached_signal:
+                self.cached_signal = self._evaluate(bus_name)
+            return self.cached_signal
+        
         return self._evaluate(bus_name)
     
     def not_updateable(self):
