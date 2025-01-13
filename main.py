@@ -66,6 +66,11 @@ def main():
         ghost_image_emitter
     ]
     
+    for i in range(0, 600):
+        starfield.update(60 / 1000)
+        for star in stars:
+            star.update(60 /1000)
+
     #counter = 0
     #t = 0
     while True:

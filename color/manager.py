@@ -37,7 +37,7 @@ class ColorManager():
         self.update_hue(dt)
         #self.channels.update(dt)
         self.get_background_color()
-        print(self.background_color)
+        #(self.background_color)
         self.update_sprites()
 
     def update_hue(self, dt):

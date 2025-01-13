@@ -24,8 +24,10 @@ class StarField(pygame.sprite.Sprite):
     def spawn(self, radius, position, velocity):
         roll = random.uniform(0.0, 1.0)
         if roll > 0.825:
+            print("i spawn planet :)")
             planet = Planet(position.x, position.y, radius)
         else:
+            print("i spawn star :0")
             star = Star(position.x, position.y, radius)
 
     def update(self, dt):
